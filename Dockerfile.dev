@@ -1,0 +1,40 @@
+FROM public.ecr.aws/docker/library/ruby:alpine3.20
+
+RUN apk update -qq && \
+    apk add --no-cache \
+    linux-headers \
+    libxml2-dev \
+    tzdata \
+    build-base \
+    curl-dev \
+    libpq-dev \
+    postgresql-client \
+    gcompat \
+    && rm -rf /var/lib/apk/lists/*
+
+RUN mkdir -p /dating-app
+WORKDIR /dating-app
+
+COPY . /dating-app
+
+RUN adduser -D -u 1000 rails && \
+    chown -R rails:rails /dating-app
+USER rails
+
+RUN gem install bundler:2.4.13 && \
+    bundle config set --local path 'vendor/bundle' && \
+    bundle install --jobs 4 --retry 3
+
+RUN mkdir -p tmp/pids tmp/sockets log && \
+    chown -R rails:rails tmp log
+
+# ADD entrypoint.sh /entrypoint.sh
+# USER root
+# RUN chmod +x /entrypoint.sh
+
+# USER rails
+
+EXPOSE 3000
+
+# ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
