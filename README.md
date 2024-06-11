@@ -28,3 +28,8 @@ bin/rails c
 docker compose exec web sh
 bundle install
 ```
+
+## Tech stack
+- Ruby -v3.3.2
+- Rails -v7.0.8.4
+- PostgresSQL
